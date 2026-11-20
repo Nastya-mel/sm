@@ -1,0 +1,29 @@
+---
+- name: Настраиваемый сайт
+  hosts: all
+  become: true
+  vars:
+    app_name: mysite
+    root_dir: /var/www/mysite
+    nginx_port: 8080
+
+  tasks:
+    - name: Создаём каталог сайта
+      file:
+        path: "{{ root_dir }}"
+        state: directory
+
+    - name: Кладём HTML-страницу
+      template:
+        src: templates/index.html.j2
+        dest: "{{ root_dir }}/index.html"
+
+    - name: Кладём конфиг Nginx
+      template:
+        src: templates/nginx.conf.j2
+        dest: "/etc/nginx/conf.d/{{ app_name }}.conf"
+
+    - name: Перечитываем конфигурацию Nginx
+      service:
+        name: nginx
+        state: reloaded
